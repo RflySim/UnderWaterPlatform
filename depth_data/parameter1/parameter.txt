@@ -1,0 +1,1 @@
+fs=10.0, b0=0.01, sigma_b=0.02, sigma_s=0.001, sigma0=0.01, alpha=0.0005, A_w=0.3, f_w=0.2, H_wave=1.0, seed=123
