@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Runtime outputs
+DepthCam*.png
+*.log
+*.tmp
+
+# OS/editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

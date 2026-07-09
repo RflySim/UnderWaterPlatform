@@ -1,101 +1,178 @@
-# Unmanned Underwater Vehicle (UUV) Control and Simulation Platform
+# UnderWaterPlatform
 
-This is a control and simulation platform for Unmanned Underwater Vehicles (UUV) used to implement various control algorithms and simulation experiments for underwater robots.
+RflySim-compatible underwater vehicle simulation artifact for the paper:
 
-## Project Structure
+**A Physics-Based Simulation Framework for Underwater Vehicle Dynamics and Multi-Sensor Perception**
 
+This repository packages the released UUV dynamics artifact, SIL/HIL launch scripts, sensor configuration files, VINS-Fusion interface settings, fusion-localization code, control demos, and selected experiment logs used to support the manuscript revision.
+
+- Project video: [Bilibili demo](https://www.bilibili.com/video/BV1h8q5BSEo7/)
+- Public repository URL: [https://github.com/RflySim/UnderWaterPlatform.git](https://github.com/RflySim/UnderWaterPlatform.git)
+- Platform documentation: [https://www.rflysim.com](https://www.rflysim.com)
+
+## Preview
+
+The figures below summarize the released SIL/HIL workflow, distributed simulation interface, experimental setup, and representative motion-behavior validation results.
+
+<p align="center">
+  <img src="media/sil_hil_architecture.png" alt="SIL and HIL simulation architecture" width="900">
+</p>
+
+<p align="center">
+  <img src="media/distributed_simulation_architecture.png" alt="Distributed simulation communication architecture" width="360">
+  <img src="media/sil_hil_environment.png" alt="SIL and HIL experimental environment" width="520">
+</p>
+
+<p align="center">
+  <img src="media/motion_behavior_validation.png" alt="Motion-behavior validation trajectories" width="560">
+</p>
+
+## What Is Included
+
+| Path | Contents | Purpose |
+|---|---|---|
+| `UUV/` | Compiled UUV dynamics DLL, PX4/Pixhawk parameter and firmware files, camera configuration, and SIL/HIL launch scripts | Start the RflySim-compatible UUV simulation in software-in-the-loop or hardware-in-the-loop mode |
+| `Demo/` | Python examples for attitude/path control and camera capture | Provide minimal runnable examples for control and perception data access |
+| `FusionLocation/` | ROS-side fusion-localization scripts, rope/relative-position helper, relocalization bridge, and Kalman-filter fusion code | Reproduce the visual-inertial and cable-based localization workflow |
+| `euroc_uuv/` | Camera and VINS-Fusion YAML configuration files | Configure VINS-Fusion for the simulated UUV stereo/mono image and IMU streams |
+| `Data/` | CSV logs for SIL/HIL and localization experiments | Support offline inspection of trajectory, attitude, velocity, IMU, GPS-compatible, and fusion outputs |
+| `docs/` | Reproducibility, configuration, and data documentation | Explain how the artifact maps to the experiments and reviewer-requested release information |
+| `media/` | README preview figures exported from the manuscript figures | Provide a quick visual overview of the platform workflow and validation artifacts |
+
+## Main Capabilities
+
+- RflySim-compatible UUV dynamics execution through `UUVModel.dll`.
+- Software-in-the-loop (SIL) and hardware-in-the-loop (HIL) launch paths for UE4 and UE5 workflows.
+- PX4/Pixhawk-oriented HITL setup using the released parameter and firmware files.
+- Configurable visual sensor output through `Config.json`, including RGB, grayscale, and depth streams.
+- Stereo camera and IMU interface configuration for VINS-Fusion.
+- Fusion-localization workflow combining VINS relocalization, cable/rope relative-position information, and Kalman-filter path fusion.
+- Selected CSV logs for SIL/HIL comparison and localization evaluation.
+
+## Tested Environment
+
+The manuscript experiments report the following environment:
+
+- RflySim v4.12 with CopterSim, QGroundControl, PX4/Pixhawk support, and RflySimUE5.
+- Unreal Engine 5.2 cooked assets.
+- MATLAB/Simulink R2024b for model development and code generation.
+- Python 3.12 for the released Python-side workflow.
+- ROS and VINS-Fusion for the fusion-localization experiment.
+- Windows 11 workstation with Intel Core i7-11700F CPU, 16 GB RAM, and NVIDIA GeForce RTX 3070 GPU with 8 GB VRAM.
+
+The repository does not mirror third-party platforms such as RflySim, PX4, QGroundControl, ROS, or VINS-Fusion. Install those dependencies from their official sources and keep their license terms.
+
+## Quick Start: SIL
+
+1. Install and configure RflySim on the Windows host.
+2. Open a terminal with administrator privileges.
+3. Run one of the SIL launch scripts:
+
+```bat
+UUV\UUVModel_SITL.bat
+UUV\UUVModel_SITLUE5.bat
 ```
-├── Config.json         # Sensor configuration file
-├── code/               # Code directory
-├── data/               # Experimental data storage directory
-├── image/              # Project-related image storage directory
-└── model/              # UUV model file directory
+
+4. When prompted, input `1` to create the vehicle instance.
+5. Run a demo script after CopterSim, QGroundControl, and the 3D renderer are ready:
+
+```bat
+python Demo\UUVAttCtrlPath.py
+python Demo\UUVAttCtrlCamera.py
 ```
 
-## Directory Description
+## Quick Start: HIL
 
-### 1. Config.json
+1. Flash the compatible firmware in `UUV/px4_fmu-v6c_default.px4` to the target PX4/Pixhawk hardware, or build firmware for the target hardware following the PX4/RflySim workflow.
+2. Connect the flight controller to the Windows simulation host by USB.
+3. Open a terminal with administrator privileges.
+4. Run one of the HIL launch scripts:
 
-Configuration file for defining visual sensor parameters in the system. Contains the following information:
-- Sensor sequence number and type ID
-- Data width, height, and sampling frequency
-- Transmission protocol and IP address
-- Camera Field of View (FOV)
-- Sensor position and angle information
+```bat
+UUV\UUVModel_HITL.bat
+UUV\UUVModel_HITLUE5.bat
+```
 
-### 2. code/ Directory
+5. Input the COM port number shown by the script.
+6. Run the demo or fusion-localization workflow after the simulation environment is ready.
 
-Contains Python implementation files for various UUV control algorithms:
+## Fusion Localization Workflow
 
-#### UUVAttCtrlUnderWaterDepth.py
-Underwater depth sensor simulator and control interface. Main functions:
-- Implements depth sensor simulation model including noise, bias, and wave effects
-- Provides QGC-style GUI interface for real-time depth data display
-- Supports data recording and saving functionality
+The fusion-localization workflow uses RflySim image/IMU streams, VINS-Fusion, rope/cable relative-position information, and Kalman-filter path fusion.
 
-#### UUVAttCtrlPathCircle.py
-UUV circular path tracking control program. Main functions:
-- Implements UUV attitude control and circular path planning
-- Supports PX4 flight controller Offboard mode control
-- Records UUV attitude, position, and velocity data
+1. Prepare the ROS and VINS-Fusion environment.
+2. Copy `FusionLocation/` to the ROS-side workspace or virtual machine.
+3. Copy the RflySim SDK Python interface to the same environment and refresh the SDK path after platform updates.
+4. Copy the YAML files in `euroc_uuv/` into the VINS-Fusion configuration directory.
+5. Start the simulation through the UE5 SIL or HIL script.
+6. Run:
 
-#### UUVAttCtrlPositionCtrl.py
-UUV position controller implementation. Main functions:
-- Implements position control algorithm based on NED coordinate system
-- Supports target position tracking and path planning
-- Achieves precise position control by combining with attitude control
+```bash
+cd FusionLocation
+bash oneKeyScript.sh
+```
 
-#### UUVAttCtrlSonarFast.py
-Sonar image processing and visualization program. Main functions:
-- Implements depth map to sonar image conversion algorithm
-- Provides real-time sonar image visualization interface
-- Supports sonar simulation with different parameter configurations
+See [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for the staged reproduction workflow.
 
-### 3. data/ Directory
+## Sensor Configuration
 
-Stores data from various control experiments:
+The main camera configuration files are:
 
-#### attitude_ctrl_data/
-Attitude control experiment data, including:
-- circle/: Circular path tracking data
-- complex_path/: Complex path tracking data
+- `UUV/Config.json` for the simulation-side visual sensors.
+- `FusionLocation/Config.json` for the image-capture side of the fusion workflow.
 
-#### depth_data/
-Depth control experiment data, containing 9 groups of experimental results with different parameters (parameter1~parameter9), each group includes:
-- cont_data.csv: Continuous depth data
-- out_data.csv: Sampled output depth data
-- parameter.txt: Experimental parameter configuration file
-- time.csv: Timestamp data
-- true_data.csv: True depth data
+The `TypeID` field selects the visual stream type:
 
-#### position_ctrl_data/
-Position control experiment data, including:
-- circle/: Circular trajectory control data
-- square/: Square trajectory control data
+| `TypeID` | Output |
+|---:|---|
+| `1` | RGB image |
+| `2` | Grayscale image |
+| `3` | Depth image |
 
-#### sonar_data/
-Sonar image data, containing configurations with different field of views and maximum detection distances:
-- fov60max20/: 60° field of view, maximum distance 20 meters, including PNG images of original sonar, noisy sonar, blurred sonar, and blurred noisy sonar
-- fov60max40/: 60° field of view, maximum distance 40 meters, including PNG images of original sonar, noisy sonar, blurred sonar, and blurred noisy sonar
-- fov90max40/: 90° field of view, maximum distance 40 meters, including PNG images of original sonar, noisy sonar, blurred sonar, and blurred noisy sonar
-- fov90max40_time_series_data/: Time series sonar data, containing 19 sonar images at different times (Figure_1.png to Figure_19.png)
+Other important fields include image resolution, capture frequency, camera field of view, UDP port, sensor position, and sensor attitude. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for details.
 
-### 4. image/ Directory
+## Data Logs
 
-Stores project-related image files for documentation and visualization purposes.
+The `Data/` directory contains selected CSV logs:
 
-### 5. model/ Directory
+- `Data/sil_hil/sil/` and `Data/sil_hil/hil/`: paired SIL/HIL system logs.
+- `Data/location1/`, `Data/location2/`, and `Data/location3/`: localization experiment outputs.
+- `Data/Data/`: legacy copy of SIL/HIL data kept for compatibility with earlier scripts.
 
-Contains UUV model files:
+See [docs/DATASETS.md](docs/DATASETS.md) for file naming conventions and column-level guidance.
 
-#### UUVModel.slx
-Simulink model file defining the UUV's physical model and dynamic characteristics
+## Reproducibility Checklist
 
-#### UUVModel.dll
-Compiled UUV model dynamic link library used for simulation calculations
+The released artifact includes:
 
-#### UUVModel_init.m
-MATLAB initialization script for loading and configuring the UUV model
+- UUV dynamics binary artifact: `UUV/UUVModel.dll`.
+- PX4/Pixhawk parameter and firmware files: `UUV/UUV.params`, `UUV/px4_fmu-v6c_default.px4`.
+- SIL/HIL launch scripts for UE4 and UE5.
+- Camera and sensor stream configuration files.
+- VINS-Fusion camera/IMU YAML configurations.
+- Control, image-capture, relocalization, rope-position, and fusion scripts.
+- Selected CSV logs for SIL/HIL and localization experiments.
+- Documentation that maps repository files to the manuscript experiments.
 
-#### GenerateModelDLLFile.p
-Script for generating model DLL files
+The public SOLAQUA real-UUV dataset used for the short-horizon replay validation is an external public dataset cited in the manuscript and is not mirrored in this repository.
+
+## Citation
+
+If this artifact is useful for your research, please cite the associated manuscript:
+
+```text
+X. Dai, Y. Yang, and Y. Chen, "A Physics-Based Simulation Framework for Underwater Vehicle Dynamics and Multi-Sensor Perception," submitted.
+```
+
+A machine-readable citation stub is provided in `CITATION.cff` and should be updated after publication.
+
+## License
+
+The released source files, configuration files, documentation, and examples in this repository are provided under the MIT License. Third-party platforms and tools, including RflySim, PX4, QGroundControl, ROS, VINS-Fusion, MATLAB/Simulink, and Unreal Engine assets, remain subject to their own license terms.
+
+## Notes
+
+- Run the Windows launch scripts with administrator privileges.
+- Keep `UUVModel.dll` in the same directory as the launch scripts.
+- The Python scripts require the RflySim Python API modules such as `PX4MavCtrlV4`, `UE4CtrlAPI`, `VisionCaptureApi`, and `ReqCopterSim`.
+- ROS message packages and VINS-Fusion are installed separately and are not Python `pip` packages.

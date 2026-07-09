@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated manuscript."
+title: "A Physics-Based Simulation Framework for Underwater Vehicle Dynamics and Multi-Sensor Perception"
+authors:
+  - family-names: Dai
+    given-names: Xunhua
+  - family-names: Yang
+    given-names: Yongchang
+  - family-names: Chen
+    given-names: Yong
+url: "https://github.com/RflySim/UnderWaterPlatform.git"
+date-released: "2026-07-04"
+version: "revision-artifact"
+preferred-citation:
+  type: article
+  title: "A Physics-Based Simulation Framework for Underwater Vehicle Dynamics and Multi-Sensor Perception"
+  authors:
+    - family-names: Dai
+      given-names: Xunhua
+    - family-names: Yang
+      given-names: Yongchang
+    - family-names: Chen
+      given-names: Yong
+  year: 2026

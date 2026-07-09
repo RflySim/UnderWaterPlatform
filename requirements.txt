@@ -1,0 +1,6 @@
+# Core Python packages used by the released demo and helper scripts.
+# RflySim SDK modules and ROS message packages are installed separately.
+numpy
+opencv-python
+matplotlib
+numpy-quaternion
